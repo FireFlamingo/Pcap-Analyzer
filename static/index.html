@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PCAP Analyzer — CTF Packet Forensics</title>
+    <meta name="description" content="Upload and analyze PCAP files for CTF challenges. Extract flags, credentials, files, DNS data, HTTP traffic, and more.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="bg-grid"></div>
+    <div class="bg-glow glow-1"></div>
+    <div class="bg-glow glow-2"></div>
+
+    <header>
+        <div class="logo">
+            <div class="logo-icon">
+                <svg viewBox="0 0 40 40" fill="none">
+                    <rect x="2" y="2" width="36" height="36" rx="8" stroke="url(#grad)" stroke-width="2.5"/>
+                    <path d="M12 14h16M12 20h10M12 26h14" stroke="url(#grad)" stroke-width="2" stroke-linecap="round"/>
+                    <circle cx="30" cy="28" r="5" stroke="#00ffa3" stroke-width="1.5"/>
+                    <path d="M33 31l3 3" stroke="#00ffa3" stroke-width="1.5" stroke-linecap="round"/>
+                    <defs>
+                        <linearGradient id="grad" x1="0" y1="0" x2="40" y2="40">
+                            <stop stop-color="#00ffa3"/>
+                            <stop offset="1" stop-color="#00d4ff"/>
+                        </linearGradient>
+                    </defs>
+                </svg>
+            </div>
+            <div>
+                <h1>PCAP Analyzer</h1>
+                <p class="tagline">CTF Packet Forensics Engine</p>
+            </div>
+        </div>
+        <div class="header-badge">
+            <span class="badge-dot"></span> Ready to Analyze
+        </div>
+    </header>
+
+    <main>
+        <!-- Upload Section -->
+        <section id="upload-section" class="section">
+            <div class="upload-zone" id="upload-zone">
+                <div class="upload-icon">
+                    <svg viewBox="0 0 64 64" fill="none">
+                        <path d="M32 44V20M32 20l-10 10M32 20l10 10" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M12 40v8a4 4 0 004 4h32a4 4 0 004-4v-8" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/>
+                    </svg>
+                </div>
+                <h2>Drop your PCAP file here</h2>
+                <p>or click to browse — supports .pcap, .pcapng, .cap</p>
+                <input type="file" id="file-input" accept=".pcap,.pcapng,.cap" hidden>
+                <button class="btn-upload" id="btn-browse">Browse Files</button>
+            </div>
+        </section>
+
+        <!-- Loading Section -->
+        <section id="loading-section" class="section hidden">
+            <div class="loader-card">
+                <div class="loader-spinner">
+                    <div class="spinner-ring"></div>
+                    <div class="spinner-ring ring-2"></div>
+                    <div class="spinner-ring ring-3"></div>
+                </div>
+                <h2>Analyzing Packets…</h2>
+                <p class="loader-sub" id="loader-filename"></p>
+                <div class="loader-bar">
+                    <div class="loader-bar-fill"></div>
+                </div>
+                <p class="loader-hint">Hunting for flags, credentials, hidden files & more</p>
+            </div>
+        </section>
+
+        <!-- Results Section -->
+        <section id="results-section" class="section hidden">
+            <!-- File Info Bar -->
+            <div class="file-info-bar" id="file-info-bar"></div>
+
+            <!-- Flags Banner -->
+            <div class="flags-banner hidden" id="flags-banner">
+                <div class="flags-banner-icon">🚩</div>
+                <div class="flags-banner-content">
+                    <h3>Flags Found!</h3>
+                    <div id="flags-banner-list"></div>
+                </div>
+            </div>
+
+            <!-- Tab Navigation -->
+            <div class="tabs" id="tabs">
+                <button class="tab active" data-tab="overview">
+                    <span class="tab-icon">📊</span> Overview
+                </button>
+                <button class="tab" data-tab="flags">
+                    <span class="tab-icon">🚩</span> Flags
+                    <span class="tab-count" id="count-flags">0</span>
+                </button>
+                <button class="tab" data-tab="credentials">
+                    <span class="tab-icon">🔑</span> Credentials
+                    <span class="tab-count" id="count-credentials">0</span>
+                </button>
+                <button class="tab" data-tab="files">
+                    <span class="tab-icon">📁</span> Files
+                    <span class="tab-count" id="count-files">0</span>
+                </button>
+                <button class="tab" data-tab="dns">
+                    <span class="tab-icon">🌐</span> DNS
+                    <span class="tab-count" id="count-dns">0</span>
+                </button>
+                <button class="tab" data-tab="http">
+                    <span class="tab-icon">🔗</span> HTTP
+                    <span class="tab-count" id="count-http">0</span>
+                </button>
+                <button class="tab" data-tab="streams">
+                    <span class="tab-icon">🔄</span> Streams
+                    <span class="tab-count" id="count-streams">0</span>
+                </button>
+                <button class="tab" data-tab="strings">
+                    <span class="tab-icon">📝</span> Strings
+                    <span class="tab-count" id="count-strings">0</span>
+                </button>
+                <button class="tab" data-tab="suspicious">
+                    <span class="tab-icon">⚠️</span> Suspicious
+                    <span class="tab-count" id="count-suspicious">0</span>
+                </button>
+            </div>
+
+            <!-- Tab Panels -->
+            <div class="tab-panels">
+                <div class="tab-panel active" id="panel-overview"></div>
+                <div class="tab-panel" id="panel-flags"></div>
+                <div class="tab-panel" id="panel-credentials"></div>
+                <div class="tab-panel" id="panel-files"></div>
+                <div class="tab-panel" id="panel-dns"></div>
+                <div class="tab-panel" id="panel-http"></div>
+                <div class="tab-panel" id="panel-streams"></div>
+                <div class="tab-panel" id="panel-strings"></div>
+                <div class="tab-panel" id="panel-suspicious"></div>
+            </div>
+
+            <!-- New Analysis Button -->
+            <div class="new-analysis">
+                <button class="btn-new" id="btn-new">⟳ New Analysis</button>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <p>PCAP Analyzer — Built for CTF warriors ⚔️</p>
+    </footer>
+
+    <script src="app.js"></script>
+</body>
+</html>

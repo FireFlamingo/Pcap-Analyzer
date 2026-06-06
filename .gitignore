@@ -1,0 +1,27 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environments
+.venv/
+venv/
+ENV/
+env/
+
+# Output and runtime directories created by the app
+carved/
+uploads/
+test_carved/
+
+# Test/Generated files
+*.pcap
+*.pcapng
+*.cap
+*.txt
+*.md
+!README.md
+
+# IDEs
+.idea/
+.vscode/
